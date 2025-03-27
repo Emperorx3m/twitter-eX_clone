@@ -4,6 +4,8 @@ Here's a concise and informative description for your Twitter clone GitHub repos
 
 # Twitter Clone | eX Clone 🐦  
 
+# N.B Intentionally Omitted Utils and Components folder--view gitignore.
+
 A high-performance Twitter clone built with **React Native** and **Expo**, featuring dynamic media rendering, dark mode support, and optimized video playback.  
 
 ## Features 🚀  
