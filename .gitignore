@@ -28,9 +28,16 @@ yarn-error.*
 # macOS
 .DS_Store
 *.pem
+.env
+app.json
 
 # local env files
 .env*.local
-
+utils/
+components/
 # typescript
 *.tsbuildinfo
+@emperorx3m__twitter_clone.jks
+android
+ios
+.vscode

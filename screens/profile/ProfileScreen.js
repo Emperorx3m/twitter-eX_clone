@@ -1,0 +1,172 @@
+import React, { useEffect, useState } from "react";
+import { View, Text, FlatList, TouchableOpacity, ScrollView, Image } from 'react-native';
+import { useSelector } from "react-redux";
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { formatDateToMonthYear } from "utils/helpers";
+import { useNavigation, useRoute } from "@react-navigation/native";
+import Tweets from "components/Tweets";
+
+const ProfileScreen = () => {
+  const { mode, theme } = useSelector((state) => state.theme);
+  const isDarkMode = mode === "dark";
+  const route = useRoute();
+    const navigation = useNavigation();
+    const userid = route?.params?.userID
+    console.log('view user', userid)
+
+  const userdeets_ = useSelector((state) => state.userDeets?.userDetails);
+  const authUser = useSelector((state) => state.auth.isAuthenticated);
+  let photoURL = "https://static.vecteezy.com/system/resources/previews/000/649/115/original/user-icon-symbol-sign-vector.jpg"
+  const [userdeets, setuserdeets] = useState(null)
+  const profilePicture = userdeets?.photoUrl ?? photoURL;
+  const BACKGROUND_COLOR = isDarkMode ? "bg-black" : "bg-white";
+  const TEXT_COLOR = isDarkMode ? "text-white" : "text-black";
+  const ICON_COLOR = isDarkMode ? "white" : "black";
+  const BORDER_COLOR = isDarkMode ? "border-gray-700" : "border-gray-300";
+  const MUTED_TEXT = isDarkMode ? "text-gray-400" : "text-gray-600";
+  const BUTTON_BG = isDarkMode ? "bg-white" : "bg-black";
+  const BUTTON_TEXT = isDarkMode ? "text-black" : "text-white";
+
+  useEffect(() => {
+    if(!userid && userdeets_) {
+      console.log('userdeets_', userdeets_?.bannerUrl)
+      setuserdeets(userdeets_)
+    }
+    if(userid) {
+      //fetch user details
+      const getUser = null;
+      setuserdeets(getUser)
+    }
+
+  }, [userdeets_])
+  
+
+  const tweets = [
+    {
+      id: "1",
+      name: userdeets?.name,
+      username: "@" + userdeets?.username,
+      time: "7h",
+      text: `Shopify Hydrogen – The Future of Headless Commerce
+
+Hydrogen is Shopify’s React framework for building custom, high-performance storefronts. Why it matters:
+      
+- Build unique, brand-aligned shopping experiences.
+      
+- Edge-side rendering = lightning-fast load times.
+      `,
+      image: [
+        {
+          "type": "image",
+          "uri": "https://images.pexels.com/photos/546819/pexels-photo-546819.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
+        },
+      ],
+      photoUrl: profilePicture,
+      comments: 143,
+      retweets: 52,
+      likes: 213,
+      views: "26.1K",
+    }
+  ];
+
+  const editProfile = () => {
+    navigation.navigate("EditProfileScreen");
+  }
+
+  if (!userdeets) {
+    return <View className='border-4 border-red-900 text-center flex-1 items-center justify-center'><Text className='text-red-900 font-extrabold text-2xl'>Invalid User</Text></View>;
+  }
+
+  return (
+    <SafeAreaView className={`flex-1 ${BACKGROUND_COLOR}`}>
+      
+      <View className="relative h-40">
+        <View>
+          {userdeets?.bannerUrl ?
+            <Image source={{ uri: userdeets?.bannerUrl }} className="w-full h-full" />
+            :
+            <View className='bg-gray-400 w-full h-full items-center justify-center'>
+              <MaterialCommunityIcons name="image-plus" size={24} color={theme?.text} />
+            </View>
+          }
+        </View>
+        <TouchableOpacity onPress={() => navigation.goBack()} className="absolute left-4 top-4 p-2 bg-black/40 rounded-full">
+          <MaterialCommunityIcons name="arrow-left" size={24} color="white" />
+        </TouchableOpacity>
+      </View>
+
+      {/* Profile Image */}
+      <View className="flex-row justify-between items-end px-4 -mt-10">
+        <Image source={{ uri: profilePicture }}
+          className={`w-20 h-20 rounded-full border-4 mb-4 ${mode == "light" ? "border-white" : "border-black"}`}
+        />
+        <View className=''>
+          <TouchableOpacity onPress={editProfile} className={`px-4 py-2 h-10  border ${mode == "dark" ? "border-gray-200" : "border-gray-400"} rounded-full`}>
+            <Text className={`${TEXT_COLOR} font-semibold`}>Edit Profile</Text>
+          </TouchableOpacity>
+        </View>
+
+      </View>
+
+      {/* User Info */}
+      <View className="px-4 mt-2">
+        <Text className={`text-xl font-bold ${TEXT_COLOR}`}>{userdeets?.name}</Text>
+        <Text className={`text-base mb-2 ${MUTED_TEXT}`}>@{userdeets?.username}</Text>
+        {userdeets?.bio &&
+          <Text className={`mt-0 ${TEXT_COLOR} text-lg`}>
+            {userdeets?.bio}
+          </Text>
+        }
+        {userdeets?.location &&
+          <View className="flex-row gap-x-2  mt-1">
+            <MaterialCommunityIcons name="map-marker-outline" size={18} color={ICON_COLOR} />
+            <Text className={`text-base ${MUTED_TEXT}`}>{userdeets?.location}</Text>
+          </View>
+        }
+
+        {userdeets?.website &&
+          <View className="flex-row gap-x-2  mt-1">
+            <Ionicons name="globe-outline" size={15} color={ICON_COLOR} />
+            <Text className={`text-base ${MUTED_TEXT}`}>{userdeets?.website}</Text>
+          </View>
+        }
+
+        {userdeets?.createdAt &&
+          <View className="flex-row gap-x-2  mt-1">
+            <MaterialCommunityIcons name="calendar" size={16} color={ICON_COLOR} />
+            <Text className={`text-base ${MUTED_TEXT}`}>Joined {formatDateToMonthYear(userdeets?.createdAt)}</Text>
+          </View>
+        }
+      </View>
+
+      {/* Profile Stats */}
+      <View className="flex-row gap-x-6 px-4 mt-2">
+        <Text className={`${TEXT_COLOR}`}>
+          <Text className="font-bold">{userdeets?.followingCount}</Text> Following
+        </Text>
+        <Text className={`${TEXT_COLOR}`}>
+          <Text className="font-bold">{userdeets?.followersCount}</Text> Followers
+        </Text>
+      </View>
+
+      {/* Posts Section */}
+      <View className="px-4 mt-4 border-t border-gray-700">
+        <Text className={`text-lg font-bold py-2 ${TEXT_COLOR}`}>Posts</Text>
+
+
+
+      </View>
+      <FlatList
+        data={tweets}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => (
+          <Tweets tweet={item} />
+        )}
+      />
+    </SafeAreaView>
+  );
+
+};
+
+export default ProfileScreen;
