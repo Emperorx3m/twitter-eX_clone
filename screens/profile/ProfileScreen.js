@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { View, Text, FlatList, TouchableOpacity, ScrollView, Image, ActivityIndicator } from 'react-native';
 import { useSelector } from "react-redux";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { fetchAllTweets, formatDateToMonthYear, photoURL } from "utils/helpers";
+import { formatDateToMonthYear, getUserDetails, listenForTweets, photoURL } from "utils/helpers";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import Tweets from "components/Tweets";
 import ImageOpenDrawer from "components/navigation/ImageOpenDrawer";
@@ -14,7 +14,6 @@ const ProfileScreen = () => {
   const route = useRoute();
     const navigation = useNavigation();
     const userid = route?.params?.userID
-    console.log('view user', userid)
 
   const userdeets_ = useSelector((state) => state.userDeets?.userDetails);
   const authUser = useSelector((state) => state.auth.isAuthenticated);
@@ -28,68 +27,65 @@ const ProfileScreen = () => {
   const BUTTON_BG = isDarkMode ? "bg-white" : "bg-black";
   const BUTTON_TEXT = isDarkMode ? "text-black" : "text-white";
   const [tweets, setTweets] = useState(null)
+  const [loading, setloading] = useState(false)
+const lastTweetsRef = useRef(null);
+  // const getUserTW = async () => {
+  //   const tw = await fetchAllTweets(userdeets?.uid)
+  //   // console.log('tw_', JSON.stringify(tw, null, 2))
+  //   tw && setTweets(tw);
+  // }
 
-  const getUserTW = async () => {
-    const tw = await fetchAllTweets(userdeets?.uid)
-    // console.log('tw_', JSON.stringify(tw, null, 2))
-    tw && setTweets(tw);
+  const getUser= async (uid) => {
+    setloading(true)
+    const usr = await getUserDetails(uid)
+    setloading(false);
+    usr?.uid && setuserdeets(usr);
   }
 
+
   useEffect(() => {
-    if(userdeets){
-      getUserTW()
-    }
+    if (userdeets) {
+       // Cache last tweets
   
-  }, [userdeets])
+      const unsubscribe = listenForTweets(userdeets?.uid, (newTweets) => {
+        if (JSON.stringify(newTweets) !== JSON.stringify(lastTweetsRef.current)) {
+          setTweets(newTweets);
+          lastTweetsRef.current = newTweets; // Update cache
+        }
+      });
+  
+      return () => unsubscribe(); // Cleanup on unmount
+    }
+  }, [userdeets]);
+  
+  
 
   useEffect(() => {
     if(!userid && userdeets_) {
       console.log('userdeets_', userdeets_?.bannerUrl)
       setuserdeets(userdeets_)
     }
-    if(userid) {
-      //fetch user details
-      const getUser = null;
-      setuserdeets(getUser)
+    if(userid) {     
+      if(userid == userdeets_?.uid){ setuserdeets(userdeets_); return}
+      
+      getUser(userid)
     }
     
   }, [userdeets_])
   
 
-//   const tweets = [
-//     {
-//       id: "1",
-//       name: userdeets?.name,
-//       username: "@" + userdeets?.username,
-//       time: "7h",
-//       text: `Shopify Hydrogen – The Future of Headless Commerce
-
-// Hydrogen is Shopify’s React framework for building custom, high-performance storefronts. Why it matters:
-      
-// - Build unique, brand-aligned shopping experiences.
-      
-// - Edge-side rendering = lightning-fast load times.
-//       `,
-//       image: [
-//         {
-//           "type": "image",
-//           "uri": "https://images.pexels.com/photos/546819/pexels-photo-546819.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
-//         },
-//       ],
-//       photoUrl: profilePicture,
-//       comments: 143,
-//       retweets: 52,
-//       likes: 213,
-//       views: "26.1K",
-//     }
-//   ];
-
   const editProfile = () => {
     navigation.navigate("EditProfileScreen");
   }
 
-  if (!userdeets) {
-    return <View className='border-4 border-red-900 text-center flex-1 items-center justify-center'><Text className='text-red-900 font-extrabold text-2xl'>Invalid User</Text></View>;
+
+  if (!userdeets || loading) {
+    return <View className='text-center flex-1 items-center justify-center'>
+    {
+      loading ? <ActivityIndicator /> : <Text className='text-red-900 font-extrabold text-2xl'>Invalid User</Text>
+    }
+    
+    </View>;
   }
 
   return (

@@ -5,8 +5,8 @@ import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import ImageOpenDrawer from "components/navigation/ImageOpenDrawer";
 import Tweets from "components/Tweets";
-import { fetchAllTweets } from "utils/helpers";
-// import { tweets } from "utils/helpers";
+import { listenForTweets } from "utils/helpers";
+// import { fetchAllTweets } from "utils/helpers";
 
 export default function HomeScreen() {
   const { theme, mode } = useSelector((state) => state.theme); // Light/Dark mode
@@ -22,7 +22,11 @@ export default function HomeScreen() {
   }
 
   useEffect(() => {
-      getUserTW()
+      // getUserTW()
+       // Listen for tweets in real-time
+    const unsubscribe = listenForTweets(null, setTweets);
+
+    return () => unsubscribe(); 
   }, [])
 
   return (

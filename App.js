@@ -79,7 +79,7 @@ function RootNavigator() {
   return (
     <NavigationContainer>
       {isAuthenticated ? <MyDrawer /> : <AuthStack />}
-      <StatusBar style="auto" barStyle={mode == 'dark' ? 'light-content' : 'dark-content'} />
+      <StatusBar style="auto" barStyle={mode == 'dark' ? 'light-content' : 'dark-content'} backgroundColor={mode === 'dark' ? '#000' : '#fff'} />
     </NavigationContainer>
   );
 }

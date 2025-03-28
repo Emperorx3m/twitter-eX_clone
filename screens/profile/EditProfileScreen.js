@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Image, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, Text, TextInput, Image, TouchableOpacity, ActivityIndicator, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system';
@@ -95,7 +95,9 @@ const EditProfileScreen = () => {
     };
 
     return (
-        <View className={`flex-1 p-4 ${mode === 'dark' ? COLORS.darkBg : COLORS.lightBg}`}>
+        <KeyboardAvoidingView  keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 60}  behavior={Platform.OS === "ios" ? "padding" : "height"} 
+        style={{ flex: 1 }} className='flex-1'>
+        <ScrollView className={`flex-1 p-4 ${mode === 'dark' ? COLORS.darkBg : COLORS.lightBg}`}>
             <View className='flex-row justify-between items-center mb-4'>
                 <TouchableOpacity onPress={() => navigation.goBack()} className="rounded-full flex-row  items-center gap-x-2">
                     <MaterialCommunityIcons name="arrow-left" size={24} color={theme?.text} />
@@ -142,7 +144,8 @@ const EditProfileScreen = () => {
 
             <Text className={`text-lg font-semibold ${mode === 'dark' ? COLORS.textDark : COLORS.textLight} mt-4`}>Website</Text>
             <TextInput value={form.website} onChangeText={(text) => setForm({ ...form, website: text })} className={`border border-gray-300 rounded-md p-2 mt-1 ${mode === 'dark' ? 'text-white' : 'text-black'}`} />
-        </View>
+        </ScrollView>
+        </KeyboardAvoidingView>
     );
 };
 
