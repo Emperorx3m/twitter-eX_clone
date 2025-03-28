@@ -93,7 +93,7 @@ return querySnapshot.data().count > 0;
         isVerified: false
       };
 
-      // Store user details in Firestore
+      // Store user details in Firestor
       user?.uid && await setDoc(doc(db, "users", user.uid), user);
 
       setLoading(false);
@@ -104,6 +104,7 @@ return querySnapshot.data().count > 0;
     } catch (error) {
       console.log('error', JSON.stringify(error, null, 2))
       setLoading(false);
+      if(error?.length < 1) return;
       const message = getErrorMessage(error.code);
       Alert.alert("Error", message);
     }

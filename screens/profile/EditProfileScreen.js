@@ -9,6 +9,7 @@ import { doc, setDoc } from 'firebase/firestore';
 import { db } from 'utils/firebaseConfig';
 import { setUserDetails } from 'slices/userDetailsSlice';
 import { COLORS } from 'utils/theme';
+import { photoURL } from 'utils/helpers';
 
 
 const PROFILE_FILE_PATH = FileSystem.documentDirectory + 'profile.json';
@@ -17,7 +18,6 @@ const EditProfileScreen = () => {
     const { mode, theme } = useSelector((state) => state.theme);
     const userdeets = useSelector((state) => state.userDeets?.userDetails);
     const navigation = useNavigation();
-    let photoURL = "https://static.vecteezy.com/system/resources/previews/000/649/115/original/user-icon-symbol-sign-vector.jpg";
     const profilePicture = userdeets?.photoUrl ?? photoURL;
     const dispatch = useDispatch();
 

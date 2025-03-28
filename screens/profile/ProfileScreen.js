@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, FlatList, TouchableOpacity, ScrollView, Image } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, ScrollView, Image, ActivityIndicator } from 'react-native';
 import { useSelector } from "react-redux";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { formatDateToMonthYear } from "utils/helpers";
+import { fetchAllTweets, formatDateToMonthYear, photoURL } from "utils/helpers";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import Tweets from "components/Tweets";
+import ImageOpenDrawer from "components/navigation/ImageOpenDrawer";
 
 const ProfileScreen = () => {
   const { mode, theme } = useSelector((state) => state.theme);
@@ -17,7 +18,6 @@ const ProfileScreen = () => {
 
   const userdeets_ = useSelector((state) => state.userDeets?.userDetails);
   const authUser = useSelector((state) => state.auth.isAuthenticated);
-  let photoURL = "https://static.vecteezy.com/system/resources/previews/000/649/115/original/user-icon-symbol-sign-vector.jpg"
   const [userdeets, setuserdeets] = useState(null)
   const profilePicture = userdeets?.photoUrl ?? photoURL;
   const BACKGROUND_COLOR = isDarkMode ? "bg-black" : "bg-white";
@@ -27,6 +27,20 @@ const ProfileScreen = () => {
   const MUTED_TEXT = isDarkMode ? "text-gray-400" : "text-gray-600";
   const BUTTON_BG = isDarkMode ? "bg-white" : "bg-black";
   const BUTTON_TEXT = isDarkMode ? "text-black" : "text-white";
+  const [tweets, setTweets] = useState(null)
+
+  const getUserTW = async () => {
+    const tw = await fetchAllTweets(userdeets?.uid)
+    // console.log('tw_', JSON.stringify(tw, null, 2))
+    tw && setTweets(tw);
+  }
+
+  useEffect(() => {
+    if(userdeets){
+      getUserTW()
+    }
+  
+  }, [userdeets])
 
   useEffect(() => {
     if(!userid && userdeets_) {
@@ -38,37 +52,37 @@ const ProfileScreen = () => {
       const getUser = null;
       setuserdeets(getUser)
     }
-
+    
   }, [userdeets_])
   
 
-  const tweets = [
-    {
-      id: "1",
-      name: userdeets?.name,
-      username: "@" + userdeets?.username,
-      time: "7h",
-      text: `Shopify Hydrogen – The Future of Headless Commerce
+//   const tweets = [
+//     {
+//       id: "1",
+//       name: userdeets?.name,
+//       username: "@" + userdeets?.username,
+//       time: "7h",
+//       text: `Shopify Hydrogen – The Future of Headless Commerce
 
-Hydrogen is Shopify’s React framework for building custom, high-performance storefronts. Why it matters:
+// Hydrogen is Shopify’s React framework for building custom, high-performance storefronts. Why it matters:
       
-- Build unique, brand-aligned shopping experiences.
+// - Build unique, brand-aligned shopping experiences.
       
-- Edge-side rendering = lightning-fast load times.
-      `,
-      image: [
-        {
-          "type": "image",
-          "uri": "https://images.pexels.com/photos/546819/pexels-photo-546819.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
-        },
-      ],
-      photoUrl: profilePicture,
-      comments: 143,
-      retweets: 52,
-      likes: 213,
-      views: "26.1K",
-    }
-  ];
+// - Edge-side rendering = lightning-fast load times.
+//       `,
+//       image: [
+//         {
+//           "type": "image",
+//           "uri": "https://images.pexels.com/photos/546819/pexels-photo-546819.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
+//         },
+//       ],
+//       photoUrl: profilePicture,
+//       comments: 143,
+//       retweets: 52,
+//       likes: 213,
+//       views: "26.1K",
+//     }
+//   ];
 
   const editProfile = () => {
     navigation.navigate("EditProfileScreen");
@@ -79,7 +93,13 @@ Hydrogen is Shopify’s React framework for building custom, high-performance st
   }
 
   return (
-    <SafeAreaView className={`flex-1 ${BACKGROUND_COLOR}`}>
+     <ImageOpenDrawer
+      showImage={true}
+      icon={<Ionicons name="settings-outline" size={24} color={theme.text} />}
+      showTabs={false}
+      showHeader={false}
+    >
+    <ScrollView className={`flex-1 ${BACKGROUND_COLOR}`}>
       
       <View className="relative h-40">
         <View>
@@ -154,17 +174,20 @@ Hydrogen is Shopify’s React framework for building custom, high-performance st
       <View className="px-4 mt-4 border-t border-gray-700">
         <Text className={`text-lg font-bold py-2 ${TEXT_COLOR}`}>Posts</Text>
 
+        {!tweets && <ActivityIndicator />}
 
 
       </View>
       <FlatList
         data={tweets}
         keyExtractor={(item) => item.id}
+        nestedScrollEnabled={true}
         renderItem={({ item }) => (
           <Tweets tweet={item} />
         )}
       />
-    </SafeAreaView>
+    </ScrollView>
+     </ImageOpenDrawer>
   );
 
 };

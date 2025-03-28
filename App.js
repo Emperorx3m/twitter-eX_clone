@@ -68,10 +68,10 @@ function RootNavigator() {
   if (loading) {
     return (
       <View className='flex-1 items-center'>
-    <ImageBackground source={splash} resizeMode='cover' className='w-full h-full' >
-      <ActivityIndicator size="large" className="h-full mt-10 border" />
-    </ImageBackground>
-    </View>
+        <ImageBackground source={splash} resizeMode='cover' className='w-full h-full' >
+          <ActivityIndicator size="large" className="h-full mt-10 border" />
+        </ImageBackground>
+      </View>
     )
 
   }
